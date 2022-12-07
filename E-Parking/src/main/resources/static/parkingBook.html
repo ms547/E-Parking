@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/commonStyle.css">
+  <script src="js/parkingBook.js"></script>
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl" ng-init="onload();" style="font-family: fangsong;">
+
+  <div class="container-fluid fixed-top py-3" style="background-color: #555;">
+    <div class="row collapse show no-gutters d-flex h-100 position-relative">
+      <div class="col-3 px-0 w-sidebar navbar-collapse collapse d-none d-md-flex">
+        <!-- spacer col -->
+      </div>
+      <div class="col px-3 px-md-0">
+        <!-- toggler -->
+        <a data-toggle="collapse" href="#" data-target=".collapse" role="button" class="text-white p-1">
+          <i class="fa fa-bars fa-lg"></i>
+        </a>
+      </div>
+      <div class="col px-3 px-md-0 donationCls">
+        <span style="text-decoration: none;font-size: 18px;" data-toggle="modal" class="text-white">Park your
+          vehicle</span>
+      </div>
+      <div>
+        <i class="fa fa-sign-out text-white" style="font-size: 20px;cursor: pointer;" ng-click="logout()">Logout</i>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid px-0">
+    <div class="row collapse show no-gutters d-flex h-100 position-relative">
+      <div class="col-3 p-0 h-100 navbar-collapse collapse d-none d-md-flex sidebar">
+        <!-- fixed sidebar -->
+        <div class="navbar-dark bg-themecolor text-white position-fixed h-100 align-self-start w-sidebar"
+          style="width: 174px;">
+          <img src="logo.jfif" style="height: 58px;width: 174px;">
+          <a data-toggle="collapse" class="px-1 d-inline d-md-none text-white" href="#" data-target=".collapse"><i
+              class="fa fa-bars"></i></a>
+          <ul class="nav flex-column flex-nowrap text-truncate">
+            <li class="nav-item " id="menuTabId" menuType="MENU">
+              <a class="nav-link active menuCls" href="#" ng-click="switchMenu('MENU','menuTabId')">Booking</a>
+            </li>
+            <li class="nav-item " menuType="BILLING" id="billingTabId">
+              <a class="nav-link menuCls" href="#" ng-click="switchMenu('BILLING','billingTabId')">Payment</a>
+            </li>
+            <li class="nav-item " menuType="HISTORY" id="orderHistoryTabId">
+              <a class="nav-link menuCls" href="#" ng-click="switchMenu('HISTORY','orderHistoryTabId')">Booking
+                history</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Route -->
+      <div class="col-md-11 routeCls" style="margin-left: 200px; margin-top: 56px;" id="routeDivId">
+        <div class="modal-body">
+          <form>
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label>Select Parking Area</label>
+                <select class="form-control" id="parkingTypeId" value="" ng-change="getParkingCost()"
+                  ng-model="parkingType" required>
+                  <option value="">Select Parking Area</option>
+                  <option value="Office">Office</option>
+                  <option value="Home">Home</option>
+                  <option value="Resident">Resident</option>
+                  <option value="Shopping Area">Shopping Area</option>
+                  <option value="School Area">School Arear</Area:r>
+                  </option>
+                  <option value="Hospital Area">Hospital Area</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="contactId">Contact no.</label>
+                <input type="number" class="form-control" id="contactId" placeholder="Enter Contact no." required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Book Date</label>
+                <input type="date" class="form-control" id="bookingDateId" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>No. of days</label>
+                <input type="number" class="form-control" ng-blur="getParkingCost()" id="nod" value="" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Vehicle Number</label>
+                <input type="text" class="form-control" id="vehicleId" placeholder="Enter Licence" required disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="contactId">Total Cost</label>
+                <input type="text" class="form-control" id="costId" value="{{orderDetails.price}}" disabled required>
+              </div>
+              <div class="modal-footer">
+                <button type="reset" class="border btn btn-light" data-dismiss="modal">Close</button>
+                <button type="button" class="border btn btn-success" ng-click="addOrder()">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Participate Div -->
+      <div class="col-md-11 paymentCls" style="margin-left: 200px; margin-top: 56px;" id="biilingId">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Parking Area</th>
+              <th scope="col">Contact</th>
+              <th scope="col">Booking Date</th>
+              <th scope="col">No. of days</th>
+              <th scope="col">Vehicle Number</th>
+              <th scope="col">Total Cost</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="data in viewOrderTableData">
+              <td scope="col" class="text-black">{{data.parkingTypeId}}</td>
+              <td scope="col" class="text-black">{{data.contactId}}</td>
+              <td scope="col" class="text-black">{{data.orderDate}}</td>
+              <td scope="col" class="text-black">{{data.nod}}</td>
+              <td scope="col" class="text-black">{{data.vehicleId}}</td>
+              <td scope="col" class="text-black">{{data.costId}}</td>
+              <td scope="col" class="text-black">
+                <button ng-show="data.status == 'pending'" type="button" class="border btn-small btn-success rounded"
+                  ng-click="getOrderData(data)" data-toggle="modal" data-target="#processToPayModalId">Pay Bill</button>
+                <span ng-show="data.status != 'pending'">{{data.status}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- process to pay -->
+        <div class="modal fade" id="processToPayModalId">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <!-- Modal Header -->
+              <div class="modal-header bg-success">
+                <h4 class="modal-title text-white">Process to pay</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+              </div>
+              <!-- Modal body -->
+              <div class="modal-body">
+                <form>
+                  <div class="form-row">
+                    <div class="col-md-12 mb-3">
+                      <label for="ammountId">Ammount</label>
+                      <input type="text" class="form-control" id="ammountId" value="" readonly>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                      <label for="paymentModeId">Payment Mode</label>
+                      <select class="form-control" id="paymentModeId">
+                        <option value="">Select</option>
+                        <option value="Cash Payment">Cash</option>
+                        <option value="Card Payment">Card</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <!-- Modal footer -->
+              <div class="modal-footer">
+                <button type="reset" class="border btn btn-light" data-dismiss="modal">Close</button>
+                <button type="button" class="border btn btn-success" ng-click="payBill()">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+
+</html>
